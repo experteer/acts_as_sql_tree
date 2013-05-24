@@ -11,6 +11,10 @@ in your tree(s). The drawback is that it can only be used with PostgreSQL 8.4+, 
 maybe a few others. We are currnelyt only testing for PostgreSQL, so if you find it works
 for your database, please let us know and we will disseminate the information.
 
+I used the following information as a guide for these modifications:
+http://blog.hashrocket.com/posts/recursive-sql-in-activerecord
+Thank you Josh Davey for your awesome tutorial!
+
 ## Example
 
 ```ruby
