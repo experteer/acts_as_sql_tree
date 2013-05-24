@@ -5,9 +5,9 @@ require 'acts_as_tree/version'
 Gem::Specification.new do |s|
   s.name        = 'acts_as_tree'
   s.version     = ActsAsTree::VERSION
-  s.authors     = ['Erik Dahlstrand', 'Rails Core', 'Mark Turner', 'Swanand Pagnis']
-  s.email       = ['erik.dahlstrand@gmail.com', 'mark@amerine.net', 'swanand.pagnis@gmail.com']
-  s.homepage    = 'https://github.com/amerine/acts_as_tree'
+  s.authors     = ['Samuel C. Tyler']
+  s.email       = ['skamansam@gmail.com']
+  s.homepage    = 'https://github.com/skamansam/acts_as_tree'
   s.summary     = %q{Provides a simple tree behaviour to active_record models.}
   s.description = %q{A gem that adds simple support for organizing ActiveRecord models into parent–children relationships.}
 

@@ -111,6 +111,7 @@ module ActsAsTree
     # Returns list of ancestors, starting from parent until root.
     #
     #   subchild1.ancestors # => [child1, root]
+    # NOTE: This should be optimized WITH SQL
     def ancestors
       node, nodes = self, []
       nodes << node = node.parent while node.parent
@@ -118,6 +119,7 @@ module ActsAsTree
     end
 
     # Returns the root node of the tree.
+    # NOTE: This should be optimized WITH SQL
     def root
       node = self
       node = node.parent while node.parent
