@@ -1,9 +1,15 @@
-# ActsAsTree [![Build Status](https://secure.travis-ci.org/amerine/acts_as_tree.png?branch=master)][travis]
-[travis]: (http://travis-ci.org/amerine/acts_as_tree)
+# ActsAsTree [![Build Status](https://secure.travis-ci.org/skamansam/acts_as_tree.png?branch=master)][travis]
+[travis]: (http://travis-ci.org/skamansam/acts_as_tree)
 
 
 ActsAsTree extends ActiveRecord to add simple support for organizing items into
 parent–children relationships.
+
+This fork of acts_as_tree uses the WITH RECURSIVE SQL call, thereby speeding up the recursive process.
+This is especially beneficial if you have more than one tree model or have a lot of branches
+in your tree(s). The drawback is that it can only be used with PostgreSQL 8.4+, Sybase, and
+maybe a few others. We are currnelyt only testing for PostgreSQL, so if you find it works
+for your database, please let us know and we will disseminate the information.
 
 ## Example
 
