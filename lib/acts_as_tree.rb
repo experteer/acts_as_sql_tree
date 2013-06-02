@@ -169,7 +169,7 @@ module ActsAsTree
       where("#{table_name}.id IN (#{tree_sql_for(instance)})").order("#{table_name}.id")
     end
 
-    def self.tree_sql_for(instance)
+    def self.ancestors_sql_for(instance)
       tree_sql =  <<-SQL
         WITH RECURSIVE search_tree(id, path) AS (
             SELECT id, ARRAY[id]
@@ -184,8 +184,24 @@ module ActsAsTree
         SELECT id FROM search_tree ORDER BY path
       SQL
     end
-    def root
+    def root_of(instance)
       
+    end
+    def self.decendents_sql_for(instance)
+      tree_sql = <<-SQL
+        WITH RECURSIVE facility_tree(id, name, path) AS (
+          SELECT id, name, ARRAY[parent_id]
+          FROM facilities
+          WHERE parent_id IS NOT NULL
+        UNION ALL
+          SELECT facilities.id, facilities.name, path || facilities.parent_id
+          FROM facility_tree
+          JOIN facilities ON facilities.id = ANY(facility_tree.path)
+          --WHERE NOT facilities.parent_id = ANY(path)
+          WHERE facilities.parent_id IS NOT NULL 
+        )
+        SELECT * FROM facility_tree ORDER BY path;
+      SQL
     end
     private
 
