@@ -1,6 +1,6 @@
 require 'test/unit'
 require 'active_record'
-require 'acts_as_tree'
+require 'acts_as_sql_tree'
 
 class Test::Unit::TestCase
   def assert_queries(num = 1)
@@ -38,27 +38,27 @@ def teardown_db
 end
 
 class Mixin < ActiveRecord::Base
-  include ActsAsTree
+  include ActsAsSqlTree
 end
 
 class TreeMixin < Mixin
-  acts_as_tree foreign_key: "parent_id", order: "id"
+  acts_as_sql_tree foreign_key: "parent_id", order: "id"
 end
 
 class TreeMixinWithoutOrder < Mixin
-  acts_as_tree foreign_key: "parent_id"
+  acts_as_sql_tree foreign_key: "parent_id"
 end
 
 class TreeMixinNullify < Mixin
-  acts_as_tree foreign_key: "parent_id", order: "id", dependent: :nullify
+  acts_as_sql_tree foreign_key: "parent_id", order: "id", dependent: :nullify
 end
 
 class TreeMixinWithCounterCache < Mixin
-  acts_as_tree foreign_key: "parent_id", order: "id", counter_cache: :children_count
+  acts_as_sql_tree foreign_key: "parent_id", order: "id", counter_cache: :children_count
 end
 
 class RecursivelyCascadedTreeMixin < Mixin
-  acts_as_tree foreign_key: "parent_id"
+  acts_as_sql_tree foreign_key: "parent_id"
   has_one :first_child, class_name: 'RecursivelyCascadedTreeMixin', foreign_key: :parent_id
 end
 

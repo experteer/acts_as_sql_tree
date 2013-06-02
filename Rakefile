@@ -11,11 +11,11 @@ task :default => :test
 # Run the rdoc task to generate rdocs for this gem
 require 'rdoc/task'
 RDoc::Task.new do |rdoc|
-  require "acts_as_tree/version"
-  version = ActsAsTree::VERSION
+  require "acts_as_sql_tree/version"
+  version = ActsAsSqlTree::VERSION
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "acts_as_tree-rails3 #{version}"
+  rdoc.title = "acts_as_sql_tree-rails3 #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end

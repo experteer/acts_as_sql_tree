@@ -1,8 +1,8 @@
-# ActsAsTree [![Build Status](https://secure.travis-ci.org/skamansam/acts_as_tree.png?branch=master)][travis]
-[travis]: (http://travis-ci.org/skamansam/acts_as_tree)
+# ActsAsSqlTree [![Build Status](https://secure.travis-ci.org/skamansam/acts_as_sql_tree.png?branch=master)][travis]
+[travis]: (http://travis-ci.org/skamansam/acts_as_sql_tree)
 
 
-ActsAsTree extends ActiveRecord to add simple support for organizing items into
+ActsAsSqlTree extends ActiveRecord to add simple support for organizing items into
 parent–children relationships.
 
 This fork of acts_as_tree uses the WITH RECURSIVE SQL call, thereby speeding up the recursive process.
@@ -19,9 +19,9 @@ Thank you Josh Davey for your awesome tutorial!
 
 ```ruby
 class Category < ActiveRecord::Base
-  include ActsAsTree
+  include ActsAsSqlTree
 
-  acts_as_tree order: "name"
+  acts_as_sql_tree order: "name"
 end
 
 root      = Category.create("name" => "root")
@@ -40,7 +40,12 @@ We no longer support Ruby 1.8 or versions of Rails/ActiveRecord older than 3.0. 
 
 Moving forward we will do our best to support the latest versions of ActiveRecord and Ruby.
 
-## Change Log
+## Change Log for ActsAsSqlTree
+* 2.0.0 - June 1st, 2013
+  * Skeleton Rewrite of ActsAsTree
+  * Major version change due to major code revisions
+
+## Change Log for ActsAsTree
 * 1.3.0 - March 29th, 2013
   * Rails 4.0 Support! -- mischa78
   * Readme Fixes -- mischa78 & seanhussey

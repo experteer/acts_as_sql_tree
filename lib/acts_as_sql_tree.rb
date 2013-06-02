@@ -1,11 +1,11 @@
-require 'acts_as_tree/version'
+require 'acts_as_sql_tree/version'
 
-module ActsAsTree
+module ActsAsSqlTree
 
   if defined? Rails::Railtie
-    require 'acts_as_tree/railtie'
+    require 'acts_as_sql_tree/railtie'
   elsif defined? Rails::Initializer
-    raise "acts_as_tree 1.0 is not compatible with Rails 2.3 or older"
+    raise "acts_as_sql_tree 1.0 is not compatible with Rails 2.3 or older"
   end
 
   def self.included(base)
@@ -18,9 +18,9 @@ module ActsAsTree
   # +parent_id+.
   #
   #   class Category < ActiveRecord::Base
-  #     include ActsAsTree
+  #     include ActsAsSqlTree
   #
-  #     acts_as_tree :order => "name"
+  #     acts_as_sql_tree :order => "name"
   #   end
   #
   #   Example:
@@ -40,7 +40,7 @@ module ActsAsTree
   #
   # In addition to the parent and children associations, the following
   # instance methods are added to the class after calling
-  # <tt>acts_as_tree</tt>:
+  # <tt>acts_as_sql_tree</tt>:
   # * <tt>siblings</tt> - Returns all the children of the parent, excluding
   #                       the current node (<tt>[subchild2]</tt> when called
   #                       on <tt>subchild1</tt>)
@@ -60,7 +60,7 @@ module ActsAsTree
     #                    this SQL snippet.
     # * <tt>counter_cache</tt> - keeps a count in a +children_count+ column
     #                            if set to +true+ (default: +false+).
-    def acts_as_tree(options = {})
+    def acts_as_sql_tree(options = {})
       configuration = {
         foreign_key:   "parent_id",
         order:         nil,
@@ -90,7 +90,7 @@ module ActsAsTree
       end
 
       class_eval <<-EOV
-        include ActsAsTree::InstanceMethods
+        include ActsAsSqlTree::InstanceMethods
 
         after_update :update_parents_counter_cache
 
@@ -215,4 +215,4 @@ module ActsAsTree
 end
 
 # Deprecating the following code in the future.
-require 'acts_as_tree/active_record/acts/tree'
+require 'acts_as_sql_tree/active_record/acts/tree'
