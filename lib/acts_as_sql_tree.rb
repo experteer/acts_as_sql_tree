@@ -157,11 +157,11 @@ module ActsAsSqlTree
     # NOTE: the following methods were adapted or taken from http://blog.hashrocket.com/posts/recursive-sql-in-activerecord
     # a big THANK YOU to Josh Davey for this!
     
-    def descendents
-      self_and_descendents - [self]
+    def descendants
+      self_and_descendants - [self]
     end
 
-    def self_and_descendents
+    def self_and_descendants
       self.class.tree_for(self)
     end
 
