@@ -70,19 +70,18 @@ module ActsAsSqlTree
 
       configuration.update(options) if options.is_a?(Hash)
 
-      belongs_to :parent, :class_name =>  name,
+      belongs_to :parent, :class_name =>  "::Ja::Company",
         :foreign_key =>   configuration[:foreign_key],
-        :counter_cache => configuration[:counter_cache],
-        :inverse_of =>    :children
+        :counter_cache => configuration[:counter_cache],        :inverse_of =>    :children
 
       if ActiveRecord::VERSION::MAJOR >= 4
         has_many :children, lambda { order configuration[:order] },
-          :class_name =>  name,
+          :class_name =>  "::Ja::Company",
           :foreign_key => configuration[:foreign_key],
           :dependent =>   configuration[:dependent],
           :inverse_of =>  :parent
       else
-        has_many :children, :class_name =>  name,
+        has_many :children, :class_name =>  "::Ja::Company",
           :foreign_key => configuration[:foreign_key],
           :order =>       configuration[:order],
           :dependent =>   configuration[:dependent],
@@ -90,7 +89,7 @@ module ActsAsSqlTree
       end
 
       class_eval <<-EOV
-        include ActsAsSqlTree::InstanceMethods
+        include ::ActsAsSqlTree::InstanceMethods
 
         after_update :update_parents_counter_cache
 
@@ -162,11 +161,7 @@ module ActsAsSqlTree
     end
 
     def self_and_descendants
-      tree_for(self)
-    end
-
-    def tree_for(instance)
-      where("#{table_name}.id IN (#{tree_sql_for(instance)})").order("#{table_name}.id")
+      self.class.where("#{self.class.table_name}.id IN (select id from (#{descendants_sql}) as descendants)").order("#{self.class.table_name}.id")
     end
 
     def self.tree_for(instance)
@@ -191,20 +186,21 @@ module ActsAsSqlTree
     def root_of(instance)
       
     end
-    def self.decendents_sql_for(instance)
+
+    def descendants_sql
       tree_sql = <<-SQL
         WITH RECURSIVE facility_tree(id, name, path) AS (
           SELECT id, name, ARRAY[parent_id]
-          FROM facilities
-          WHERE parent_id IS NOT NULL
+          FROM #{self.class.table_name}
+          WHERE id = #{self.class.table_name}.id
         UNION ALL
-          SELECT facilities.id, facilities.name, path || facilities.parent_id
+          SELECT #{self.class.table_name}.id, #{self.class.table_name}.name, path || #{self.class.table_name}.parent_id
           FROM facility_tree
-          JOIN facilities ON facilities.id = ANY(facility_tree.path)
-          --WHERE NOT facilities.parent_id = ANY(path)
-          WHERE facilities.parent_id IS NOT NULL 
+          JOIN #{self.class.table_name} ON #{self.class.table_name}.id = ANY(path)
+          WHERE NOT #{self.class.table_name}.id = ANY(path)
+          --WHERE #{self.class.table_name}.parent_id IS NOT NULL
         )
-        SELECT * FROM facility_tree ORDER BY path;
+        SELECT * FROM facility_tree ORDER BY path
       SQL
     end
     private
