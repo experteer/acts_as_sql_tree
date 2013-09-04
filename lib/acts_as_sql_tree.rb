@@ -62,31 +62,31 @@ module ActsAsSqlTree
     #                            if set to +true+ (default: +false+).
     def acts_as_sql_tree(options = {})
       configuration = {
-        foreign_key:   "parent_id",
-        order:         nil,
-        counter_cache: nil,
-        dependent:     :destroy
+        :foreign_key =>   "parent_id",
+        :order =>         nil,
+        :counter_cache => nil,
+        :dependent =>     :destroy
       }
 
       configuration.update(options) if options.is_a?(Hash)
 
-      belongs_to :parent, class_name:    name,
-        foreign_key:   configuration[:foreign_key],
-        counter_cache: configuration[:counter_cache],
-        inverse_of:    :children
+      belongs_to :parent, :class_name =>  name,
+        :foreign_key =>   configuration[:foreign_key],
+        :counter_cache => configuration[:counter_cache],
+        :inverse_of =>    :children
 
       if ActiveRecord::VERSION::MAJOR >= 4
         has_many :children, lambda { order configuration[:order] },
-          class_name:  name,
-          foreign_key: configuration[:foreign_key],
-          dependent:   configuration[:dependent],
-          inverse_of:  :parent
+          :class_name =>  name,
+          :foreign_key => configuration[:foreign_key],
+          :dependent =>   configuration[:dependent],
+          :inverse_of =>  :parent
       else
-        has_many :children, class_name:  name,
-          foreign_key: configuration[:foreign_key],
-          order:       configuration[:order],
-          dependent:   configuration[:dependent],
-          inverse_of:  :parent
+        has_many :children, :class_name =>  name,
+          :foreign_key => configuration[:foreign_key],
+          :order =>       configuration[:order],
+          :dependent =>   configuration[:dependent],
+          :inverse_of =>  :parent
       end
 
       class_eval <<-EOV
