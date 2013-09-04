@@ -1,3 +1,4 @@
+require 'rubygems' #As long as it's for local testing
 require 'test/unit'
 require 'active_record'
 require 'acts_as_sql_tree'
@@ -15,18 +16,18 @@ class Test::Unit::TestCase
   end
 end
 
-ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
+ActiveRecord::Base.establish_connection :adapter => "sqlite3", :database => ":memory:"
 
 # AR keeps printing annoying schema statements
 $stdout = StringIO.new
 
 def setup_db
   ActiveRecord::Base.logger
-  ActiveRecord::Schema.define(version: 1) do
+  ActiveRecord::Schema.define(:version => 1) do
     create_table :mixins do |t|
       t.column :type, :string
       t.column :parent_id, :integer
-      t.column :children_count, :integer, default: 0
+      t.column :children_count, :integer, :default => 0
     end
   end
 end
@@ -42,24 +43,24 @@ class Mixin < ActiveRecord::Base
 end
 
 class TreeMixin < Mixin
-  acts_as_sql_tree foreign_key: "parent_id", order: "id"
+  acts_as_sql_tree :foreign_key => "parent_id", :order => "id"
 end
 
 class TreeMixinWithoutOrder < Mixin
-  acts_as_sql_tree foreign_key: "parent_id"
+  acts_as_sql_tree :foreign_key => "parent_id"
 end
 
 class TreeMixinNullify < Mixin
-  acts_as_sql_tree foreign_key: "parent_id", order: "id", dependent: :nullify
+  acts_as_sql_tree :foreign_key => "parent_id", :order => "id", :dependent => :nullify
 end
 
 class TreeMixinWithCounterCache < Mixin
-  acts_as_sql_tree foreign_key: "parent_id", order: "id", counter_cache: :children_count
+  acts_as_sql_tree :foreign_key => "parent_id", :order => "id", :counter_cache => :children_count
 end
 
 class RecursivelyCascadedTreeMixin < Mixin
-  acts_as_sql_tree foreign_key: "parent_id"
-  has_one :first_child, class_name: 'RecursivelyCascadedTreeMixin', foreign_key: :parent_id
+  acts_as_sql_tree :foreign_key => "parent_id"
+  has_one :first_child, :class_name => 'RecursivelyCascadedTreeMixin', :foreign_key => :parent_id
 end
 
 class TreeTest < Test::Unit::TestCase
@@ -67,10 +68,10 @@ class TreeTest < Test::Unit::TestCase
   def setup
     setup_db
     @root1              = TreeMixin.create!
-    @root_child1        = TreeMixin.create! parent_id: @root1.id
-    @child1_child       = TreeMixin.create! parent_id: @root_child1.id
-    @child1_child_child = TreeMixin.create! parent_id: @child1_child.id
-    @root_child2        = TreeMixin.create! parent_id: @root1.id
+    @root_child1        = TreeMixin.create! :parent_id => @root1.id
+    @child1_child       = TreeMixin.create! :parent_id => @root_child1.id
+    @child1_child_child = TreeMixin.create! :parent_id => @child1_child.id
+    @root_child2        = TreeMixin.create! :parent_id => @root1.id
     @root2              = TreeMixin.create!
     @root3              = TreeMixin.create!
   end
@@ -168,7 +169,7 @@ class TreeTest < Test::Unit::TestCase
 
   def test_nullify
     root4       = TreeMixinNullify.create!
-    root4_child = TreeMixinNullify.create! parent_id: root4.id
+    root4_child = TreeMixinNullify.create! :parent_id => root4.id
 
     assert_equal 2, TreeMixinNullify.count
     assert_equal root4.id, root4_child.parent_id
@@ -187,16 +188,16 @@ class TreeTestWithEagerLoading < Test::Unit::TestCase
     teardown_db
     setup_db
     @root1        = TreeMixin.create!
-    @root_child1  = TreeMixin.create! parent_id: @root1.id
-    @child1_child = TreeMixin.create! parent_id: @root_child1.id
-    @root_child2  = TreeMixin.create! parent_id: @root1.id
+    @root_child1  = TreeMixin.create! :parent_id => @root1.id
+    @child1_child = TreeMixin.create! :parent_id => @root_child1.id
+    @root_child2  = TreeMixin.create! :parent_id => @root1.id
     @root2        = TreeMixin.create!
     @root3        = TreeMixin.create!
 
     @rc1 = RecursivelyCascadedTreeMixin.create!
-    @rc2 = RecursivelyCascadedTreeMixin.create! parent_id: @rc1.id
-    @rc3 = RecursivelyCascadedTreeMixin.create! parent_id: @rc2.id
-    @rc4 = RecursivelyCascadedTreeMixin.create! parent_id: @rc3.id
+    @rc2 = RecursivelyCascadedTreeMixin.create! :parent_id => @rc1.id
+    @rc3 = RecursivelyCascadedTreeMixin.create! :parent_id => @rc2.id
+    @rc4 = RecursivelyCascadedTreeMixin.create! :parent_id => @rc3.id
   end
 
   def teardown
@@ -204,9 +205,7 @@ class TreeTestWithEagerLoading < Test::Unit::TestCase
   end
 
   def test_eager_association_loading
-    roots = TreeMixin.includes(:children)
-                     .where('mixins.parent_id IS NULL')
-                     .order('mixins.id')
+    roots = TreeMixin.includes(:children).where('mixins.parent_id IS NULL').order('mixins.id')
 
     assert_equal [@root1, @root2, @root3], roots
 
@@ -218,25 +217,19 @@ class TreeTestWithEagerLoading < Test::Unit::TestCase
   end
 
   def test_eager_association_loading_with_recursive_cascading_three_levels_has_many
-    root_node = RecursivelyCascadedTreeMixin.includes({children: {children: :children}})
-                                            .order('mixins.id')
-                                            .first
+    root_node = RecursivelyCascadedTreeMixin.includes({:children => {:children => :children}}).order('mixins.id').first
 
     assert_equal @rc4, assert_no_queries { root_node.children.first.children.first.children.first }
   end
 
   def test_eager_association_loading_with_recursive_cascading_three_levels_has_one
-    root_node = RecursivelyCascadedTreeMixin.includes({first_child: {first_child: :first_child}})
-                                            .order('mixins.id')
-                                            .first
+    root_node = RecursivelyCascadedTreeMixin.includes({:first_child => {:first_child => :first_child}}).order('mixins.id').first
 
     assert_equal @rc4, assert_no_queries { root_node.first_child.first_child.first_child }
   end
 
   def test_eager_association_loading_with_recursive_cascading_three_levels_belongs_to
-    leaf_node = RecursivelyCascadedTreeMixin.includes({parent: {parent: :parent}})
-                                            .order('mixins.id DESC')
-                                            .first
+    leaf_node = RecursivelyCascadedTreeMixin.includes({:parent => {:parent => :parent}}).order('mixins.id DESC').first
 
     assert_equal @rc1, assert_no_queries { leaf_node.parent.parent.parent }
   end
@@ -286,9 +279,9 @@ class TreeTestWithCounterCache < Test::Unit::TestCase
     teardown_db
     setup_db
     @root          = TreeMixinWithCounterCache.create!
-    @child1        = TreeMixinWithCounterCache.create! parent_id: @root.id
-    @child1_child1 = TreeMixinWithCounterCache.create! parent_id: @child1.id
-    @child2        = TreeMixinWithCounterCache.create! parent_id: @root.id
+    @child1        = TreeMixinWithCounterCache.create! :parent_id => @root.id
+    @child1_child1 = TreeMixinWithCounterCache.create! :parent_id => @child1.id
+    @child2        = TreeMixinWithCounterCache.create! :parent_id => @root.id
   end
 
   def teardown

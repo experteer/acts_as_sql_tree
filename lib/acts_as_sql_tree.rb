@@ -162,7 +162,11 @@ module ActsAsSqlTree
     end
 
     def self_and_descendants
-      self.class.tree_for(self)
+      tree_for(self)
+    end
+
+    def tree_for(instance)
+      where("#{table_name}.id IN (#{tree_sql_for(instance)})").order("#{table_name}.id")
     end
 
     def self.tree_for(instance)
